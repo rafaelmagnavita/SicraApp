@@ -8,14 +8,15 @@ import {
   StyleSheet,
 } from "react-native";
 import axios from "axios";
+import Config from "./Config"; // Import the configuration object
 
 const Api = () => {
   const [data, setData] = useState([]);
   const [idInput, setIdInput] = useState("311"); // Default ID
   const [message, setMessage] = useState("");
+  const [apiUrl, setApiUrl] = useState(Config.apiUrl); // Use the apiUrl from Config
 
   const fetchData = () => {
-    const apiUrl = "http://10.0.2.2:8080/api/IModSCCA/SolicitacoesWeb";
     const jsonData = { id: idInput };
     const headers = {
       "Content-Type": "application/json",
