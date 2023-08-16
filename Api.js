@@ -1,39 +1,69 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  TextInput,
+  Button,
+  StyleSheet,
+} from "react-native";
 import axios from "axios";
 
 const Api = () => {
   const [data, setData] = useState([]);
+  const [idInput, setIdInput] = useState("311"); // Default ID
+  const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    // Configuração da URL, corpo do JSON e headers
+  const fetchData = () => {
     const apiUrl = "http://10.0.2.2:8080/api/IModSCCA/SolicitacoesWeb";
-    const jsonData = { id: 311 };
+    const jsonData = { id: idInput };
     const headers = {
       "Content-Type": "application/json",
     };
 
-    // Faz a requisição POST para a API
     axios
       .post(apiUrl, jsonData, { headers })
       .then((response) => {
-        setData(response.data);
+        if (response.data && response.data.length > 0) {
+          setData(response.data);
+          setMessage("");
+        } else {
+          setData([]);
+          setMessage("Não há solicitações para esse código");
+        }
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
+        setMessage("Ocorreu um erro ao buscar os dados");
       });
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
   const renderItem = ({ item }) => (
     <View style={styles.item}>
       <Text>ID: {item.Id}</Text>
       <Text>Status: {item.NomeStatus}</Text>
-      {/* Adicione aqui outros campos que você deseja mostrar */}
+      {/* Add other fields here */}
     </View>
   );
 
   return (
     <View style={styles.container}>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter ID"
+          value={idInput.toString()}
+          onChangeText={(text) => setIdInput(text)}
+          keyboardType="numeric" // Set keyboardType to "numeric"
+        />
+
+        <Button title="Fetch Data" onPress={fetchData} />
+      </View>
+      {message !== "" && <Text style={styles.message}>{message}</Text>}
       <FlatList
         data={data}
         renderItem={renderItem}
@@ -48,11 +78,26 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  inputContainer: {
+    flexDirection: "row",
+    marginBottom: 16,
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 8,
+    marginRight: 8,
+  },
   item: {
     backgroundColor: "#f9c2ff",
     padding: 20,
     marginVertical: 8,
     borderRadius: 8,
+  },
+  message: {
+    color: "red",
+    marginBottom: 16,
   },
 });
 
